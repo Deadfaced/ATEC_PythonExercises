@@ -13,8 +13,10 @@ def ValidateWorkerIdNumber():
         if int(digit) % 2 == 0:
             digit_sum += int(digit)
 
-    print(f"Soma dos dígitos: {digit_sum}")
-
+    if digit_sum > 10:
+        print(f"Identificador válido! Soma dos dígitos: {digit_sum}")
+    else:
+        print(f"Identificador inválido! Soma dos dígitos: {digit_sum}")
 
 
 ValidateWorkerIdNumber()
