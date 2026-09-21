@@ -1,0 +1,3 @@
+Ex5:
+
+^\[SYNC\] Order batch confirmed ref_[A-Z]{5} qty \d{4}$

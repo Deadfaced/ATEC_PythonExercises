@@ -1,0 +1,5 @@
+Ex1:
+
+    a)^[A-Za-z]*aa[A-Za-z]*$
+    b)^[A-Za-z]{0,3}$
+    c)^[A-Z][A-Za-z]*$

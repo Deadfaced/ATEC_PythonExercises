@@ -1,0 +1,5 @@
+Ex2:
+
+    a)^[A-Za-z0-9_]+\.(pdf|xlsx|docx)$
+    b)^[A-Za-z0-9._%+-]+@empresa\.pt$
+    c)^[45][0-9]{2}$
