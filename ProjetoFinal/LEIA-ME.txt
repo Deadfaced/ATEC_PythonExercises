@@ -1,0 +1,36 @@
+Trabalho de Avaliação - Simulação de um Multibanco
+Esqueleto do projeto
+
+Conteúdo
+  multibanco/             Esqueleto com os 9 ficheiros do trabalho.
+  corrigir_cenarios.py    Script que corre os 35 cenários de teste (secção 9
+                          do enunciado). É o mesmo script usado na avaliação.
+
+O que está feito e o que falta fazer
+  messages.py e data.py estão completos e não podem ser alterados.
+  Nos restantes ficheiros, cada método e função tem a assinatura e a docstring
+  escritas, e o corpo tem só as linhas:
+      # TODO: implementar
+      raise NotImplementedError
+  Substitua essas duas linhas pelo código. Não altere os nomes, os parâmetros,
+  os type hints, as docstrings nem as constantes de classe. Pode acrescentar
+  métodos e funções auxiliares, com type hints e docstring.
+  O main.py só tem o início da função main(): a organização dos menus em
+  funções é sua (ver secção 5.6 do enunciado).
+
+Ordem recomendada (secção 11 do enunciado)
+  1. validators.py, movement.py, account.py
+  2. checking_account.py, savings_account.py, bank.py
+  3. main.py
+
+Testar
+  Executar o programa (dentro da pasta multibanco):
+      python main.py
+  Correr todos os cenários (na pasta onde está este ficheiro):
+      python corrigir_cenarios.py multibanco
+
+  No início, todos os cenários falham com NotImplementedError: é o esperado.
+  Os cenários só começam a passar quando o main.py tiver os menus. Até lá,
+  teste as classes com um pequeno script próprio.
+
+Requisitos: Python 3.10 ou superior, só a biblioteca padrão.
