@@ -14,8 +14,7 @@ class SavingsAccount(Account):
         Returns:
             str: messages.ACCOUNT_TYPE_SAVINGS ('Conta poupança').
         """
-        # TODO: implementar
-        raise NotImplementedError
+        return messages.ACCOUNT_TYPE_SAVINGS
 
     def withdraw(self, amount: float) -> None:
         """
@@ -34,5 +33,8 @@ class SavingsAccount(Account):
                 de 10 (INVALID_WITHDRAWAL_MULTIPLE) ou os fundos não cobrirem o
                 valor e a comissão (INSUFFICIENT_FUNDS_WITH_FEE).
         """
-        # TODO: implementar
-        raise NotImplementedError
+        self._validate_withdrawal(amount)
+        if amount + self.WITHDRAWAL_FEE > self._available_funds():
+            raise ValueError(messages.INSUFFICIENT_FUNDS_WITH_FEE)
+        super().withdraw(amount)
+        self._debit(self.WITHDRAWAL_FEE, messages.MOVEMENT_FEE, messages.MOVEMENT_FEE_DESCRIPTION)

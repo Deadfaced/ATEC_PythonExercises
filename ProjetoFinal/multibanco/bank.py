@@ -13,8 +13,8 @@ class Bank:
         Args:
             name (str): Nome do banco.
         """
-        # TODO: implementar
-        raise NotImplementedError
+        self.__name = name
+        self.__accounts: dict[str, Account] = {}
 
     def add_account(self, account: Account) -> None:
         """
@@ -27,8 +27,11 @@ class Bank:
             ValueError: Se já existir uma conta com o mesmo número ou IBAN
                 (mensagens com f-string, ver enunciado).
         """
-        # TODO: implementar
-        raise NotImplementedError
+        if account.number in self.__accounts:
+            raise ValueError(f"Já existe uma conta com o número {account.number}.")
+        if self.find_by_iban(account.iban) is not None:
+            raise ValueError(f"Já existe uma conta com o IBAN {account.iban}.")
+        self.__accounts[account.number] = account
 
     def find_account(self, number: str) -> Account | None:
         """
@@ -40,8 +43,7 @@ class Bank:
         Returns:
             Account | None: A conta encontrada, ou None.
         """
-        # TODO: implementar
-        raise NotImplementedError
+        return self.__accounts.get(number)
 
     def find_by_iban(self, iban: str) -> Account | None:
         """
@@ -53,8 +55,10 @@ class Bank:
         Returns:
             Account | None: A conta encontrada, ou None.
         """
-        # TODO: implementar
-        raise NotImplementedError
+        for account in self.__accounts.values():
+            if account.iban == iban:
+                return account
+        return None
 
     def list_accounts(self) -> list[Account]:
         """
@@ -63,8 +67,7 @@ class Bank:
         Returns:
             list[Account]: Lista de contas.
         """
-        # TODO: implementar
-        raise NotImplementedError
+        return [self.__accounts[number] for number in sorted(self.__accounts)]
 
     def next_account_number(self) -> str:
         """
@@ -74,8 +77,9 @@ class Bank:
             str: Número seguinte ao maior existente, com 4 dígitos, ou '1001'
                 se o banco ainda não tiver contas.
         """
-        # TODO: implementar
-        raise NotImplementedError
+        if not self.__accounts:
+            return "1001"
+        return f"{max(int(number) for number in self.__accounts) + 1:04d}"
 
     def generate_iban(self, number: str) -> str:
         """
@@ -87,8 +91,7 @@ class Bank:
         Returns:
             str: IBAN no formato PT50 seguido de 21 dígitos.
         """
-        # TODO: implementar
-        raise NotImplementedError
+        return f"PT50{int(number):021d}"
 
     def remove_account(self, number: str) -> None:
         """
@@ -101,8 +104,12 @@ class Bank:
             ValueError: Se a conta não existir (ACCOUNT_NOT_FOUND) ou o saldo
                 não for zero (ACCOUNT_HAS_BALANCE).
         """
-        # TODO: implementar
-        raise NotImplementedError
+        account = self.find_account(number)
+        if account is None:
+            raise ValueError(messages.ACCOUNT_NOT_FOUND)
+        if account.balance != 0:
+            raise ValueError(messages.ACCOUNT_HAS_BALANCE)
+        del self.__accounts[number]
 
     def unblock_account(self, number: str) -> None:
         """
@@ -115,8 +122,12 @@ class Bank:
             ValueError: Se a conta não existir (ACCOUNT_NOT_FOUND) ou não estiver
                 bloqueada (ACCOUNT_NOT_BLOCKED).
         """
-        # TODO: implementar
-        raise NotImplementedError
+        account = self.find_account(number)
+        if account is None:
+            raise ValueError(messages.ACCOUNT_NOT_FOUND)
+        if not account.is_blocked:
+            raise ValueError(messages.ACCOUNT_NOT_BLOCKED)
+        account.unblock()
 
     def transfer(self, origin: Account, destination_iban: str, amount: float) -> None:
         """
@@ -136,5 +147,13 @@ class Bank:
                 origem (SAME_ACCOUNT_TRANSFER) e, por fim, os erros de
                 transfer_out (valor ou fundos).
         """
-        # TODO: implementar
-        raise NotImplementedError
+        destination_iban = destination_iban.strip().upper()
+        if not validate_iban(destination_iban):
+            raise ValueError(messages.INVALID_IBAN)
+        destination = self.find_by_iban(destination_iban)
+        if destination is None:
+            raise ValueError(messages.DESTINATION_NOT_FOUND)
+        if destination is origin:
+            raise ValueError(messages.SAME_ACCOUNT_TRANSFER)
+        origin.transfer_out(amount, destination_iban)
+        destination.transfer_in(amount, origin.iban)

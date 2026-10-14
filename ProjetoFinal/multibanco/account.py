@@ -32,20 +32,32 @@ class Account:
                 (INVALID_PIN), IBAN (INVALID_IBAN) e saldo inicial
                 (INVALID_INITIAL_BALANCE).
         """
-        # TODO: implementar
-        raise NotImplementedError
+        if not validate_account_number(number):
+            raise ValueError(messages.INVALID_ACCOUNT_NUMBER)
+        self.__number = number
+        self.holder = holder
+        if not validate_pin(pin):
+            raise ValueError(messages.INVALID_PIN)
+        if not validate_iban(iban):
+            raise ValueError(messages.INVALID_IBAN)
+        if initial_balance != 0 and not validate_amount(initial_balance):
+            raise ValueError(messages.INVALID_INITIAL_BALANCE)
+        self.__pin = pin
+        self.__iban = iban
+        self.__balance = round(initial_balance, 2)
+        self.__movements: list[Movement] = []
+        self.__failed_pin_attempts = 0
+        self.__is_blocked = False
 
     @property
     def number(self) -> str:
         """Devolve o número da conta."""
-        # TODO: implementar
-        raise NotImplementedError
+        return self.__number
 
     @property
     def holder(self) -> str:
         """Devolve o nome do titular."""
-        # TODO: implementar
-        raise NotImplementedError
+        return self.__holder
 
     @holder.setter
     def holder(self, value: str) -> None:
@@ -59,26 +71,24 @@ class Account:
             ValueError: Se o nome não tiver nome e apelido, só com letras
                 (INVALID_HOLDER).
         """
-        # TODO: implementar
-        raise NotImplementedError
+        if not validate_name(value):
+            raise ValueError(messages.INVALID_HOLDER)
+        self.__holder = value
 
     @property
     def iban(self) -> str:
         """Devolve o IBAN da conta."""
-        # TODO: implementar
-        raise NotImplementedError
+        return self.__iban
 
     @property
     def balance(self) -> float:
         """Devolve o saldo atual (só de leitura)."""
-        # TODO: implementar
-        raise NotImplementedError
+        return self.__balance
 
     @property
     def is_blocked(self) -> bool:
         """Indica se a conta está bloqueada."""
-        # TODO: implementar
-        raise NotImplementedError
+        return self.__is_blocked
 
     def account_type(self) -> str:
         """
@@ -88,8 +98,7 @@ class Account:
             str: messages.ACCOUNT_TYPE_BASE ('Conta'). As classes derivadas
                 redefinem este método com a sua própria designação.
         """
-        # TODO: implementar
-        raise NotImplementedError
+        return messages.ACCOUNT_TYPE_BASE
 
     def check_pin(self, pin: str) -> bool:
         """
@@ -106,13 +115,20 @@ class Account:
         Raises:
             RuntimeError: Se a conta estiver bloqueada (ACCOUNT_BLOCKED).
         """
-        # TODO: implementar
-        raise NotImplementedError
+        if self.is_blocked:
+            raise RuntimeError(messages.ACCOUNT_BLOCKED)
+        if pin == self.__pin:
+            self.__failed_pin_attempts = 0
+            return True
+        self.__failed_pin_attempts += 1
+        if self.__failed_pin_attempts >= self.MAX_PIN_ATTEMPTS:
+            self.__is_blocked = True
+        return False
 
     def unblock(self) -> None:
         """Desbloqueia a conta e repõe o contador de tentativas."""
-        # TODO: implementar
-        raise NotImplementedError
+        self.__is_blocked = False
+        self.__failed_pin_attempts = 0
 
     def deposit(self, amount: float) -> None:
         """
@@ -127,8 +143,8 @@ class Account:
         Raises:
             ValueError: Se o valor for inválido (INVALID_AMOUNT).
         """
-        # TODO: implementar
-        raise NotImplementedError
+        self._validate_amount(amount)
+        self._credit(amount, messages.MOVEMENT_DEPOSIT, messages.MOVEMENT_DEPOSIT_DESCRIPTION)
 
     def withdraw(self, amount: float) -> None:
         """
@@ -145,8 +161,10 @@ class Account:
                 de 10 (INVALID_WITHDRAWAL_MULTIPLE) ou ultrapassar os fundos
                 disponíveis (INSUFFICIENT_FUNDS).
         """
-        # TODO: implementar
-        raise NotImplementedError
+        self._validate_withdrawal(amount)
+        if amount > self._available_funds():
+            raise ValueError(messages.INSUFFICIENT_FUNDS)
+        self._debit(amount, messages.MOVEMENT_WITHDRAWAL, messages.MOVEMENT_WITHDRAWAL_DESCRIPTION)
 
     def transfer_out(self, amount: float, destination_iban: str) -> None:
         """
@@ -163,8 +181,10 @@ class Account:
             ValueError: Se o valor for inválido (INVALID_AMOUNT) ou ultrapassar
                 os fundos disponíveis (INSUFFICIENT_FUNDS).
         """
-        # TODO: implementar
-        raise NotImplementedError
+        self._validate_amount(amount)
+        if amount > self._available_funds():
+            raise ValueError(messages.INSUFFICIENT_FUNDS)
+        self._debit(amount, messages.MOVEMENT_TRANSFER_OUT, f"Para {destination_iban}")
 
     def transfer_in(self, amount: float, origin_iban: str) -> None:
         """
@@ -180,8 +200,8 @@ class Account:
         Raises:
             ValueError: Se o valor for inválido (INVALID_AMOUNT).
         """
-        # TODO: implementar
-        raise NotImplementedError
+        self._validate_amount(amount)
+        self._credit(amount, messages.MOVEMENT_TRANSFER_IN, f"De {origin_iban}")
 
     def get_last_movements(self, count: int = 10) -> list[Movement]:
         """
@@ -193,8 +213,9 @@ class Account:
         Returns:
             list[Movement]: Lista com os movimentos mais recentes.
         """
-        # TODO: implementar
-        raise NotImplementedError
+        if count <= 0:
+            return []
+        return list(reversed(self.__movements[-count:]))
 
     def _available_funds(self) -> float:
         """
@@ -203,8 +224,7 @@ class Account:
         Returns:
             float: Na conta base, é o próprio saldo.
         """
-        # TODO: implementar
-        raise NotImplementedError
+        return self.balance
 
     def _validate_amount(self, amount: float) -> None:
         """
@@ -217,8 +237,8 @@ class Account:
             ValueError: Se o valor não for positivo ou tiver mais de 2 casas
                 decimais (INVALID_AMOUNT).
         """
-        # TODO: implementar
-        raise NotImplementedError
+        if not validate_amount(amount):
+            raise ValueError(messages.INVALID_AMOUNT)
 
     def _validate_withdrawal(self, amount: float) -> None:
         """
@@ -231,8 +251,9 @@ class Account:
             ValueError: Se o valor for inválido (INVALID_AMOUNT) ou não for
                 múltiplo de 10 (INVALID_WITHDRAWAL_MULTIPLE).
         """
-        # TODO: implementar
-        raise NotImplementedError
+        self._validate_amount(amount)
+        if amount % self.WITHDRAWAL_MULTIPLE != 0:
+            raise ValueError(messages.INVALID_WITHDRAWAL_MULTIPLE)
 
     def _credit(self, amount: float, movement_type: str, description: str) -> None:
         """
@@ -243,8 +264,8 @@ class Account:
             movement_type (str): Tipo de movimento.
             description (str): Descrição do movimento.
         """
-        # TODO: implementar
-        raise NotImplementedError
+        self.__balance = round(self.__balance + amount, 2)
+        self.__register_movement(movement_type, amount, description)
 
     def _debit(self, amount: float, movement_type: str, description: str) -> None:
         """
@@ -255,8 +276,8 @@ class Account:
             movement_type (str): Tipo de movimento.
             description (str): Descrição do movimento.
         """
-        # TODO: implementar
-        raise NotImplementedError
+        self.__balance = round(self.__balance - amount, 2)
+        self.__register_movement(movement_type, -amount, description)
 
     def __register_movement(self, movement_type: str, amount: float, description: str) -> None:
         """
@@ -267,8 +288,8 @@ class Account:
             amount (float): Valor, negativo nos débitos.
             description (str): Descrição do movimento.
         """
-        # TODO: implementar
-        raise NotImplementedError
+        movement = Movement(len(self.__movements) + 1, movement_type, amount, description)
+        self.__movements.append(movement)
 
     def __str__(self) -> str:
         """
@@ -278,8 +299,10 @@ class Account:
             1001 | Conta à ordem | João Silva | 1130.75 €
             1004 | Conta poupança | Ana Lopes | 0.00 € | BLOQUEADA
         """
-        # TODO: implementar
-        raise NotImplementedError
+        text = f"{self.number} | {self.account_type()} | {self.holder} | {self.balance:.2f} €"
+        if self.is_blocked:
+            text += " | BLOQUEADA"
+        return text
 
     def __repr__(self) -> str:
         """
@@ -288,5 +311,4 @@ class Account:
         Exemplo:
             CheckingAccount('1001', 'João Silva', 1130.75)
         """
-        # TODO: implementar
-        raise NotImplementedError
+        return f"{type(self).__name__}({self.number!r}, {self.holder!r}, {self.balance!r})"

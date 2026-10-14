@@ -11,32 +11,30 @@ class Movement:
             amount (float): Valor, positivo para créditos e negativo para débitos.
             description (str): Descrição do movimento.
         """
-        # TODO: implementar
-        raise NotImplementedError
+        self.__number = number
+        self.__movement_type = movement_type
+        self.__amount = amount
+        self.__description = description
 
     @property
     def number(self) -> int:
         """Devolve o número sequencial do movimento."""
-        # TODO: implementar
-        raise NotImplementedError
+        return self.__number
 
     @property
     def movement_type(self) -> str:
         """Devolve o tipo de movimento."""
-        # TODO: implementar
-        raise NotImplementedError
+        return self.__movement_type
 
     @property
     def amount(self) -> float:
         """Devolve o valor do movimento (negativo nos débitos)."""
-        # TODO: implementar
-        raise NotImplementedError
+        return self.__amount
 
     @property
     def description(self) -> str:
         """Devolve a descrição do movimento."""
-        # TODO: implementar
-        raise NotImplementedError
+        return self.__description
 
     def __str__(self) -> str:
         """
@@ -46,8 +44,10 @@ class Movement:
             #001 | Depósito | +200.00 € | Depósito em numerário
             #002 | Levantamento | -50.00 € | Levantamento ATM
         """
-        # TODO: implementar
-        raise NotImplementedError
+        return (
+            f"#{self.number:03d} | {self.movement_type} | "
+            f"{self.amount:+.2f} € | {self.description}"
+        )
 
     def __repr__(self) -> str:
         """
@@ -56,5 +56,7 @@ class Movement:
         Exemplo:
             Movement(1, 'Depósito', 200.0, 'Depósito em numerário')
         """
-        # TODO: implementar
-        raise NotImplementedError
+        return (
+            f"Movement({self.number!r}, {self.movement_type!r}, "
+            f"{self.amount!r}, {self.description!r})"
+        )

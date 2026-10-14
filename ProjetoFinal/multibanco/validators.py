@@ -15,8 +15,7 @@ def validate_account_number(number: str) -> bool:
     Returns:
         bool: True se o formato for válido, False caso contrário.
     """
-    # TODO: implementar
-    raise NotImplementedError
+    return re.fullmatch(r"[0-9]{4}", number) is not None
 
 
 def validate_pin(pin: str) -> bool:
@@ -29,8 +28,7 @@ def validate_pin(pin: str) -> bool:
     Returns:
         bool: True se o formato for válido, False caso contrário.
     """
-    # TODO: implementar
-    raise NotImplementedError
+    return re.fullmatch(r"[0-9]{4}", pin) is not None
 
 
 def validate_iban(iban: str) -> bool:
@@ -43,8 +41,7 @@ def validate_iban(iban: str) -> bool:
     Returns:
         bool: True se o formato for válido, False caso contrário.
     """
-    # TODO: implementar
-    raise NotImplementedError
+    return re.fullmatch(r"PT50[0-9]{21}", iban) is not None
 
 
 def validate_name(name: str) -> bool:
@@ -57,8 +54,10 @@ def validate_name(name: str) -> bool:
     Returns:
         bool: True se o formato for válido, False caso contrário.
     """
-    # TODO: implementar
-    raise NotImplementedError
+    return (
+        re.fullmatch(r"[^\W\d_]+(?: [^\W\d_]+)+", name) is not None
+        and all(word.isalpha() for word in name.split(" "))
+    )
 
 
 def validate_amount(amount: float) -> bool:
@@ -71,8 +70,7 @@ def validate_amount(amount: float) -> bool:
     Returns:
         bool: True se o valor for válido, False caso contrário.
     """
-    # TODO: implementar
-    raise NotImplementedError
+    return amount > 0 and amount != float("inf") and round(amount, 2) == amount
 
 
 def parse_amount(text: str) -> float:
@@ -91,5 +89,7 @@ def parse_amount(text: str) -> float:
     Raises:
         ValueError: Se o texto não representar um número (INVALID_NUMBER_TEXT).
     """
-    # TODO: implementar
-    raise NotImplementedError
+    try:
+        return float(text.strip().replace(",", "."))
+    except ValueError:
+        raise ValueError(messages.INVALID_NUMBER_TEXT) from None

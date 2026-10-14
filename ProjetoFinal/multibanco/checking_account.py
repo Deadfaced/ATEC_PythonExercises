@@ -14,8 +14,7 @@ class CheckingAccount(Account):
         Returns:
             str: messages.ACCOUNT_TYPE_CHECKING ('Conta à ordem').
         """
-        # TODO: implementar
-        raise NotImplementedError
+        return messages.ACCOUNT_TYPE_CHECKING
 
     def _available_funds(self) -> float:
         """
@@ -24,5 +23,4 @@ class CheckingAccount(Account):
         Returns:
             float: Saldo mais o limite de descoberto.
         """
-        # TODO: implementar
-        raise NotImplementedError
+        return round(self.balance + self.OVERDRAFT_LIMIT, 2)
